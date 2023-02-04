@@ -163,6 +163,7 @@ class BookController extends Controller
     public function search(Request $request) {
         $books = Book::where([
             ['title', '!=', Null],
+            ['user_id', '=', auth()->user()->id],
             [function ($builder) use ($request) {
                 if (($s = $request->search)) {
                     $builder->orWhere('title', 'LIKE', '%' . $s . '%')
