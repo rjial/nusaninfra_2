@@ -94,41 +94,48 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            "isbn" => "required",
-            "title" => "required",
-            'subtitle' => "required",
-            'author' => "required",
-            'published' => "required",
-            'publisher' => "required",
-            'pages' => "required",
-            'description' => "required",
-            'website' => "required",
-        ]);
-        if ($validator->fails()) {
-            return response()->json($validator->errors());
-        }
-        $book = Book::where('user_id', auth()->user()->id)->where("id", $id)->firstOrFail();
-        $book->user_id = auth()->user()->id;
-        $book->isbn = $request->isbn;
-        $book->title = $request->title;
-        $book->subtitle = $request->subtitle;
-        $book->author = $request->author;
-        $book->published = $request->published;
-        $book->publisher = $request->publisher;
-        $book->pages = $request->pages;
-        $book->description = $request->description;
-        $book->website = $request->website;
-        if ($book->save()) {
+        try {
+            $validator = Validator::make($request->all(), [
+                "isbn" => "required",
+                "title" => "required",
+                'subtitle' => "required",
+                'author' => "required",
+                'published' => "required",
+                'publisher' => "required",
+                'pages' => "required",
+                'description' => "required",
+                'website' => "required",
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors());
+            }
+            $book = Book::where('user_id', auth()->user()->id)->where("id", $id)->firstOrFail();
+            $book->user_id = auth()->user()->id;
+            $book->isbn = $request->isbn;
+            $book->title = $request->title;
+            $book->subtitle = $request->subtitle;
+            $book->author = $request->author;
+            $book->published = $request->published;
+            $book->publisher = $request->publisher;
+            $book->pages = $request->pages;
+            $book->description = $request->description;
+            $book->website = $request->website;
+            if ($book->save()) {
+                return response()->json([
+                    "message" => "Book updated",
+                    "book"      => $book
+                ], 200);
+            } else {
+                return response()->json([
+                    "message" => "Updating book failed",
+                ], 500);
+            }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $th) {
             return response()->json([
-                "message" => "Book updated",
-                "book"      => $book
-            ], 200);
-        } else {
-            return response()->json([
-                "message" => "Updating book failed",
-            ], 500);
+                'message' => "Book Not Found"
+            ], 404); 
         }
+        
     }
 
     /**
@@ -141,7 +148,7 @@ class BookController extends Controller
     {
         try {
             $book = Book::where('user_id', auth()->user()->id)->where("id", $id)->firstOrFail();
-            return response()->json($book->delete(), 200);
+            // return response()->json($book->delete(), 200);
             if ($book->delete()) {
                 return response()->json([
                     'message' => "Book Deleted",
