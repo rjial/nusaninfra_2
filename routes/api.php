@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\BookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,9 +17,19 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [App\Http\Controllers\Api\UserController::class, 'register']);
 Route::post('/login', [App\Http\Controllers\Api\UserController::class, 'login']);
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('/user', function(Request $request) {
+        return auth()->user();
+    });
+    // API route for logout user
+    Route::delete('/user/logout', [App\Http\Controllers\Api\UserController::class, 'logout']);
+});
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-
-    Route::post('/logout', [App\Http\Controllers\Api\UserController::class, 'logout']);
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get("/books", [BookController::class, 'index']);
+    Route::get("/books/{id}", [BookController::class, 'show']);
+    Route::put("/books/{id}/edit", [BookController::class, 'update']);
+    Route::delete("/books/{id}/delete", [BookController::class, 'destroy']);
+    Route::post("/books/add", [BookController::class, 'store']);
+    Route::post("/books/search", [BookController::class, 'search']);
 });

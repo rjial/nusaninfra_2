@@ -36,7 +36,7 @@ class UserController extends Controller
             ], 200);
         } else {
             return response()->json([
-                "message" => "User created",
+                "message" => "Register Failed",
             ], 500);
         }
     }
